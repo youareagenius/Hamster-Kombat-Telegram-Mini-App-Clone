@@ -235,13 +235,13 @@ const App: React.FC = () => {
                   <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 rounded-full bg-gradient-to-r from-indigo-900 via-blue-700 to-yellow-400 border-4 border-blue-300 shadow-2xl overflow-hidden progress-bar-pro">
                     <div className="h-full bg-gradient-to-r from-yellow-300 via-orange-400 to-red-600 progress-bar-inner" style={{ width: `calc(${tapCount} / ${TAP_LIMIT} * 100%)`, transition: 'width 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }}></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex items-center justify-center space-x-1">
+                      <div className="flex items-center justify-center space-x-0.5">
                         {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
-                          <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-6 h-6" />
+                          <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
                         ))}
-                        <img src={numberImages[10]} alt="/" className="w-4 h-4 mx-1" />
+                        <img src="/src/images/number/slash.png" alt="/" className="w-3 h-3 mx-0.5" />
                         {String(TAP_LIMIT).split('').map((digit, idx) => (
-                          <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-6 h-6" />
+                          <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
                         ))}
                       </div>
                     </div>
