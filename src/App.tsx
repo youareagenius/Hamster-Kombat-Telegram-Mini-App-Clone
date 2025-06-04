@@ -239,7 +239,7 @@ const App: React.FC = () => {
                         {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
                           <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
                         ))}
-                        <img src="./images/number/slash.png" alt="/" className="w-3 h-3 mx-0.5" />
+                        <img src={numberImages[10]} alt="/" className="w-3 h-3 mx-0.5" />
                         {String(TAP_LIMIT).split('').map((digit, idx) => (
                           <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
                         ))}
