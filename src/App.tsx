@@ -201,7 +201,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-grow mt-4 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0">
+        <div className="flex-grow mt-0 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0 flex flex-col justify-start">
           <div 
             className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px]"
             style={{
@@ -223,7 +223,11 @@ const App: React.FC = () => {
               </div>
               <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
                 <div className="dot"></div>
-                <img src={numberImages[5]} alt="5" className="mx-auto w-12 h-12" />
+                <div className="flex justify-center items-end mt-1 mb-1">
+                  {String(5).split('').map((digit, idx) => (
+                    <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
+                  ))}
+                </div>
                 <p className="text-[10px] text-center text-white mt-1">Max Combo!</p>
                 <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
               </div>
@@ -248,8 +252,6 @@ const App: React.FC = () => {
                   </div>
                   <img src={rocket2} alt="Rocket" className="absolute z-10 w-14 h-14 rocket-float" style={{ left: `calc((100% - 56px) * ${(tapCount/TAP_LIMIT)})`, top: 'calc(50% - 28px)', transition: 'left 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }} />
                 </div>
-                {/* デバッグ用：tapCountの値を表示 */}
-                <div className="text-xs text-white">tapCount: {tapCount}</div>
               </div>
             </div>
             <div className="px-4 mt-0 flex justify-center">
