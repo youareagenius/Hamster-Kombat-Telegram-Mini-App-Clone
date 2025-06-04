@@ -134,7 +134,7 @@ const App: React.FC = () => {
   // タップ進捗バー用の状態
   const [tapCount, setTapCount] = useState(0);
   const [shake, setShake] = useState(false);
-  const TAP_LIMIT = 1000;
+  const TAP_LIMIT = 300;
 
   // タップ時の進捗バーアニメーション
   const handleTap = () => {
