@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Hamster from './icons/Hamster';
-import { binanceLogo, dailyCipher, dailyCombo, dailyReward, dollarCoin, hamsterCoin, mainCharacter } from './images';
+import { binanceLogo, dollarCoin, hamsterCoin, mainCharacter, logoClear, spbgearth, rocket2, numberImages } from './images';
 import Info from './icons/Info';
 import Settings from './icons/Settings';
 import Mine from './icons/Mine';
@@ -16,7 +16,7 @@ const App: React.FC = () => {
     "Platinum",  // From 100,000 coins to 999,999 coins
     "Diamond",   // From 1,000,000 coins to 2,000,000 coins
     "Epic",      // From 2,000,000 coins to 10,000,000 coins
-    "Legendary", // From 10,000,000 coins to 50,000,000 coins
+    "連続ログイン", // From 10,000,000 coins to 50,000,000 coins
     "Master",    // From 50,000,000 coins to 100,000,000 coins
     "GrandMaster", // From 100,000,000 coins to 1,000,000,000 coins
     "Lord"       // From 1,000,000,000 coins to ∞
@@ -41,7 +41,6 @@ const App: React.FC = () => {
   const pointsToAdd = 11;
   const profitPerHour = 126420;
 
-  const [dailyRewardTimeLeft, setDailyRewardTimeLeft] = useState("");
   const [dailyCipherTimeLeft, setDailyCipherTimeLeft] = useState("");
   const [dailyComboTimeLeft, setDailyComboTimeLeft] = useState("");
 
@@ -66,7 +65,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const updateCountdowns = () => {
-      setDailyRewardTimeLeft(calculateTimeLeft(0));
       setDailyCipherTimeLeft(calculateTimeLeft(19));
       setDailyComboTimeLeft(calculateTimeLeft(12));
     };
@@ -89,6 +87,9 @@ const App: React.FC = () => {
 
     setPoints(points + pointsToAdd);
     setClicks([...clicks, { id: Date.now(), x: e.pageX, y: e.pageY }]);
+    setShake(true);
+    setTimeout(() => setShake(false), 400);
+    setTapCount((prev) => (prev < TAP_LIMIT ? prev + 1 : prev));
   };
 
   const handleAnimationEnd = (id: number) => {
@@ -130,9 +131,36 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [profitPerHour]);
 
+  // タップ進捗バー用の状態
+  const [tapCount, setTapCount] = useState(0);
+  const [shake, setShake] = useState(false);
+  const TAP_LIMIT = 1000;
+
+  // タップ時の進捗バーアニメーション
+  const handleTap = () => {
+    setTapCount((prev) => (prev < TAP_LIMIT ? prev + 1 : prev));
+    setShake(true);
+    setTimeout(() => setShake(false), 400);
+  };
+
+  // ラウンドリセット（1時間ごと）
+  useEffect(() => {
+    const now = new Date();
+    const msToNextHour = (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
+    const timeout = setTimeout(() => setTapCount(0), msToNextHour);
+    return () => clearTimeout(timeout);
+  }, [tapCount]);
+
   return (
-    <div className="bg-black flex justify-center">
-      <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
+    <div
+      className="flex justify-center"
+      style={{
+        backgroundColor: '#eee',
+        minHeight: '100vh',
+        width: '100vw',
+      }}
+    >
+      <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl justify-start">
         <div className="px-4 z-10">
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
@@ -174,42 +202,72 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex-grow mt-4 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0">
-          <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-[#1d2025] rounded-t-[46px]">
+          <div 
+            className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px]"
+            style={{
+              backgroundImage: `url(${spbgearth})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
             <div className="px-4 mt-6 flex justify-between gap-2">
-              <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative">
+              <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
                 <div className="dot"></div>
-                <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
-                <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
-                <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
-              </div>
-              <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative">
-                <div className="dot"></div>
-                <img src={dailyCipher} alt="Daily Cipher" className="mx-auto w-12 h-12" />
-                <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
+                <div className="flex justify-center items-end mt-1 mb-1">
+                  {['3','4','6','2'].map((digit, idx) => (
+                    <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
+                  ))}
+                </div>
+                <p className="text-[10px] text-center text-white mt-1">Today Taps</p>
                 <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
               </div>
-              <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative">
+              <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
                 <div className="dot"></div>
-                <img src={dailyCombo} alt="Daily Combo" className="mx-auto w-12 h-12" />
-                <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
+                <img src={numberImages[5]} alt="5" className="mx-auto w-12 h-12" />
+                <p className="text-[10px] text-center text-white mt-1">Max Combo!</p>
                 <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
               </div>
             </div>
 
-            <div className="px-4 mt-4 flex justify-center">
-              <div className="px-4 py-2 flex items-center space-x-2">
-                <img src={dollarCoin} alt="Dollar Coin" className="w-10 h-10" />
-                <p className="text-4xl text-white">{points.toLocaleString()}</p>
+            <div className="px-4 mt-0 flex justify-center">
+              <div className="w-full flex flex-col items-center">
+                <div className={`relative w-full max-w-md h-24 flex items-center justify-center mb-4 ${shake ? 'animate-shake' : ''}`} style={{cursor:'pointer'}} onClick={handleTap}>
+                  <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 rounded-full bg-gradient-to-r from-indigo-900 via-blue-700 to-yellow-400 border-4 border-blue-300 shadow-2xl overflow-hidden progress-bar-pro">
+                    <div className="h-full bg-gradient-to-r from-yellow-300 via-orange-400 to-red-600 progress-bar-inner" style={{ width: `calc(${tapCount} / ${TAP_LIMIT} * 100%)`, transition: 'width 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }}></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
+                          <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-8 h-8" />
+                        ))}
+                        <img src={numberImages[10]} alt="/" className="w-6 h-6 mx-1" />
+                        {String(TAP_LIMIT).split('').map((digit, idx) => (
+                          <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-8 h-8" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <img src={rocket2} alt="Rocket" className="absolute z-10 w-14 h-14 rocket-float" style={{ left: `calc((100% - 56px) * ${(tapCount/TAP_LIMIT)})`, top: 'calc(50% - 28px)', transition: 'left 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }} />
+                </div>
+                {/* デバッグ用：tapCountの値を表示 */}
+                <div className="text-xs text-white">tapCount: {tapCount}</div>
               </div>
             </div>
-
-            <div className="px-4 mt-4 flex justify-center">
+            <div className="px-4 mt-0 flex justify-center">
               <div
-                className="w-80 h-80 p-4 rounded-full circle-outer"
+                className={`w-80 h-80 p-4 rounded-full circle-outer${shake ? ' animate-shake' : ''}`}
                 onClick={handleCardClick}
               >
-                <div className="w-full h-full rounded-full circle-inner">
-                  <img src={mainCharacter} alt="Main Character" className="w-full h-full" />
+                <div className="w-full h-full rounded-full circle-inner relative">
+                  <img 
+                    src={logoClear} 
+                    alt="Logo" 
+                    className="absolute inset-0 w-full h-full rotate-animation opacity-20 scale-125" 
+                  />
+                  <img 
+                    src={mainCharacter} 
+                    alt="Main Character" 
+                    className="w-full h-full floating-animation relative z-10" 
+                  />
                 </div>
               </div>
             </div>
@@ -220,8 +278,8 @@ const App: React.FC = () => {
       {/* Bottom fixed div */}
       <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl bg-[#272a2f] flex justify-around items-center z-50 rounded-3xl text-xs">
         <div className="text-center text-[#85827d] w-1/5 bg-[#1c1f24] m-1 p-2 rounded-2xl">
-          <img src={binanceLogo} alt="Exchange" className="w-8 h-8 mx-auto" />
-          <p className="mt-1">Exchange</p>
+          <img src={logoClear} alt="YAG TAP" className="w-6 h-6 mx-auto" />
+          <p className="mt-1">YAG TAP</p>
         </div>
         <div className="text-center text-[#85827d] w-1/5">
           <Mine className="w-8 h-8 mx-auto" />
