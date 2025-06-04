@@ -237,11 +237,11 @@ const App: React.FC = () => {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex items-center justify-center space-x-1">
                         {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
-                          <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-8 h-8" />
+                          <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-6 h-6" />
                         ))}
-                        <img src={numberImages[10]} alt="/" className="w-6 h-6 mx-1" />
+                        <img src={numberImages[10]} alt="/" className="w-4 h-4 mx-1" />
                         {String(TAP_LIMIT).split('').map((digit, idx) => (
-                          <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-8 h-8" />
+                          <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-6 h-6" />
                         ))}
                       </div>
                     </div>
