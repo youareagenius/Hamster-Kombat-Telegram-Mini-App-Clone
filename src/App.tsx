@@ -8,6 +8,12 @@ import Mine from './icons/Mine';
 import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 
+interface Click {
+  id: number;
+  x: number;
+  y: number;
+}
+
 const App: React.FC = () => {
   const levelNames = [
     "Bronze",    // From 0 to 4999 coins
@@ -37,7 +43,7 @@ const App: React.FC = () => {
 
   const [levelIndex, setLevelIndex] = useState(6);
   const [points, setPoints] = useState(22749365);
-  const [clicks, setClicks] = useState<{ id: number, x: number, y: number }[]>([]);
+  const [clicks, setClicks] = useState<Click[]>([]);
   const pointsToAdd = 11;
   const profitPerHour = 126420;
 
@@ -75,6 +81,10 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const [combo, setCombo] = useState<number>(0);
+  const [showCombo, setShowCombo] = useState<boolean>(false);
+  const [showLightning, setShowLightning] = useState<boolean>(false);
+
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -89,11 +99,25 @@ const App: React.FC = () => {
     setClicks([...clicks, { id: Date.now(), x: e.pageX, y: e.pageY }]);
     setShake(true);
     setTimeout(() => setShake(false), 400);
-    setTapCount((prev) => (prev < TAP_LIMIT ? prev + 1 : prev));
+    setTapCount((prev: number) => (prev < TAP_LIMIT ? prev + 1 : prev));
+
+    // コンボ処理
+    setCombo((prev: number) => {
+      const newCombo = prev + 1;
+      if (newCombo >= 5) {
+        setShowCombo(true);
+        setTimeout(() => setShowCombo(false), 2000);
+      }
+      if (newCombo % 13 === 0) {
+        setShowLightning(true);
+        setTimeout(() => setShowLightning(false), 1000);
+      }
+      return newCombo;
+    });
   };
 
   const handleAnimationEnd = (id: number) => {
-    setClicks((prevClicks) => prevClicks.filter(click => click.id !== id));
+    setClicks((prevClicks: Click[]) => prevClicks.filter(click => click.id !== id));
   };
 
   const calculateProgress = () => {
@@ -126,19 +150,19 @@ const App: React.FC = () => {
   useEffect(() => {
     const pointsPerSecond = Math.floor(profitPerHour / 3600);
     const interval = setInterval(() => {
-      setPoints(prevPoints => prevPoints + pointsPerSecond);
+      setPoints((prevPoints: number) => prevPoints + pointsPerSecond);
     }, 1000);
     return () => clearInterval(interval);
   }, [profitPerHour]);
 
   // タップ進捗バー用の状態
-  const [tapCount, setTapCount] = useState(0);
+  const [tapCount, setTapCount] = useState<number>(0);
   const [shake, setShake] = useState(false);
   const TAP_LIMIT = 300;
 
   // タップ時の進捗バーアニメーション
   const handleTap = () => {
-    setTapCount((prev) => (prev < TAP_LIMIT ? prev + 1 : prev));
+    setTapCount((prev: number) => (prev < TAP_LIMIT ? prev + 1 : prev));
     setShake(true);
     setTimeout(() => setShake(false), 400);
   };
@@ -273,6 +297,30 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* コンボ表示 */}
+            {showCombo && (
+              <div className="absolute top-4 left-4 z-50 animate-bounce">
+                <div className="flex items-center space-x-2">
+                  <div className="text-4xl font-bold text-yellow-400 drop-shadow-[0_0_10px_rgba(255,255,0,0.8)]">
+                    {combo}
+                  </div>
+                  <div className="text-2xl font-bold text-yellow-400 drop-shadow-[0_0_10px_rgba(255,255,0,0.8)]">
+                    COMBO!!
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 雷の演出 */}
+            {showLightning && (
+              <div className="absolute inset-0 z-40 pointer-events-none">
+                <div className="absolute inset-0 bg-white animate-lightning"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-yellow-400 animate-pulse">
+                  ⚡️
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
