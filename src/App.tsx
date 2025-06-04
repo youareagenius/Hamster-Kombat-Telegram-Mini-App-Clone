@@ -8,12 +8,6 @@ import Mine from './icons/Mine';
 import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 
-interface Click {
-  id: number;
-  x: number;
-  y: number;
-}
-
 const App: React.FC = () => {
   const levelNames = [
     "Bronze",    // From 0 to 4999 coins
@@ -43,7 +37,7 @@ const App: React.FC = () => {
 
   const [levelIndex, setLevelIndex] = useState(6);
   const [points, setPoints] = useState(22749365);
-  const [clicks, setClicks] = useState<Click[]>([]);
+  const [clicks, setClicks] = useState<{ id: number, x: number, y: number }[]>([]);
   const pointsToAdd = 11;
   const profitPerHour = 126420;
 
@@ -81,10 +75,6 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const [combo, setCombo] = useState<number>(0);
-  const [showCombo, setShowCombo] = useState<boolean>(false);
-  const [showLightning, setShowLightning] = useState<boolean>(false);
-
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -99,25 +89,11 @@ const App: React.FC = () => {
     setClicks([...clicks, { id: Date.now(), x: e.pageX, y: e.pageY }]);
     setShake(true);
     setTimeout(() => setShake(false), 400);
-    setTapCount((prev: number) => (prev < TAP_LIMIT ? prev + 1 : prev));
-
-    // コンボ処理
-    setCombo((prev: number) => {
-      const newCombo = prev + 1;
-      if (newCombo >= 5) {
-        setShowCombo(true);
-        setTimeout(() => setShowCombo(false), 2000);
-      }
-      if (newCombo % 13 === 0) {
-        setShowLightning(true);
-        setTimeout(() => setShowLightning(false), 1000);
-      }
-      return newCombo;
-    });
+    handleTap();
   };
 
   const handleAnimationEnd = (id: number) => {
-    setClicks((prevClicks: Click[]) => prevClicks.filter(click => click.id !== id));
+    setClicks((prevClicks) => prevClicks.filter(click => click.id !== id));
   };
 
   const calculateProgress = () => {
@@ -150,21 +126,47 @@ const App: React.FC = () => {
   useEffect(() => {
     const pointsPerSecond = Math.floor(profitPerHour / 3600);
     const interval = setInterval(() => {
-      setPoints((prevPoints: number) => prevPoints + pointsPerSecond);
+      setPoints(prevPoints => prevPoints + pointsPerSecond);
     }, 1000);
     return () => clearInterval(interval);
   }, [profitPerHour]);
 
   // タップ進捗バー用の状態
-  const [tapCount, setTapCount] = useState<number>(0);
+  const [tapCount, setTapCount] = useState(0);
   const [shake, setShake] = useState(false);
+  const [showCombo, setShowCombo] = useState(false);
   const TAP_LIMIT = 300;
+  const COMBO_THRESHOLD = 5; // 5コンボ以上で表示
+  const SPECIAL_COMBO_INTERVAL = 13; // 13コンボおきに特別演出
 
   // タップ時の進捗バーアニメーション
   const handleTap = () => {
-    setTapCount((prev: number) => (prev < TAP_LIMIT ? prev + 1 : prev));
+    setTapCount((prev) => {
+      const newCount = prev < TAP_LIMIT ? prev + 1 : prev;
+      // 5コンボ以上でCOMBO演出を表示
+      if (newCount >= COMBO_THRESHOLD) {
+        setShowCombo(true);
+        setTimeout(() => setShowCombo(false), 1000);
+        // 13コンボおきに特別演出
+        if (newCount % SPECIAL_COMBO_INTERVAL === 0) {
+          showSpecialEffect();
+        }
+      }
+      return newCount;
+    });
     setShake(true);
     setTimeout(() => setShake(false), 400);
+  };
+
+  // 特別演出の関数
+  const showSpecialEffect = () => {
+    // 雷の演出を実装
+    const lightning = document.createElement('div');
+    lightning.className = 'lightning-effect';
+    document.body.appendChild(lightning);
+    setTimeout(() => {
+      document.body.removeChild(lightning);
+    }, 1000);
   };
 
   // ラウンドリセット（1時間ごと）
@@ -297,30 +299,6 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* コンボ表示 */}
-            {showCombo && (
-              <div className="absolute top-4 left-4 z-50 animate-bounce">
-                <div className="flex items-center space-x-2">
-                  <div className="text-4xl font-bold text-yellow-400 drop-shadow-[0_0_10px_rgba(255,255,0,0.8)]">
-                    {combo}
-                  </div>
-                  <div className="text-2xl font-bold text-yellow-400 drop-shadow-[0_0_10px_rgba(255,255,0,0.8)]">
-                    COMBO!!
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 雷の演出 */}
-            {showLightning && (
-              <div className="absolute inset-0 z-40 pointer-events-none">
-                <div className="absolute inset-0 bg-white animate-lightning"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl text-yellow-400 animate-pulse">
-                  ⚡️
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -363,6 +341,12 @@ const App: React.FC = () => {
           {pointsToAdd}
         </div>
       ))}
+
+      {showCombo && (
+        <div className="combo-text">
+          COMBO!!
+        </div>
+      )}
     </div>
   );
 };

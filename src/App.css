@@ -106,15 +106,60 @@
   text-stroke: 2px #222;
 }
 
-@keyframes lightning {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  20% { opacity: 0; }
-  30% { opacity: 1; }
-  40% { opacity: 0; }
-  100% { opacity: 0; }
+/* 雷の演出用スタイル */
+.lightning-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 45%, #fff 50%, transparent 55%);
+  animation: lightning 0.5s ease-in-out;
+  pointer-events: none;
+  z-index: 1000;
 }
 
-.animate-lightning {
-  animation: lightning 1s ease-in-out;
+@keyframes lightning {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* COMBO表示用スタイル */
+.combo-text {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px #ff0, 0 0 20px #ff0, 0 0 30px #ff0;
+  animation: comboAnimation 1s ease-out;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes comboAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
