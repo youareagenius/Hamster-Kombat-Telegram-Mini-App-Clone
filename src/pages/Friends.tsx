@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { numberImages } from '../images';
 import { TwitterIcon, TelegramIcon, WhatsAppIcon, CopyIcon } from '../icons/SocialIcons';
 import spbgearth from '../images/sys/spbgearth.png';
+import commaImage from '../images/number/comma.png';
 
 const Friends: React.FC = () => {
   const inviteCode = 'YAGTAP123';
@@ -59,6 +60,20 @@ const Friends: React.FC = () => {
     }
   };
 
+  const formatNumberWithCommas = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const renderNumberWithCommas = (num: number) => {
+    const formattedNumber = formatNumberWithCommas(num);
+    return formattedNumber.split('').map((char, idx) => {
+      if (char === ',') {
+        return <img key={`comma-${idx}`} src={commaImage} alt="," className="w-4 h-4" />;
+      }
+      return <img key={idx} src={numberImages[Number(char)]} alt={char} className="w-4 h-4" />;
+    });
+  };
+
   return (
     <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl justify-start">
       <div className="px-4 z-10">
@@ -109,23 +124,19 @@ const Friends: React.FC = () => {
               <div className="bg-[#272a2f] rounded-lg p-3 text-center">
                 <p className="text-sm text-gray-400">Total Invites</p>
                 <div className="flex items-center justify-center mt-1">
-                  {String(rewards.totalInvites).split('').map((digit, idx) => (
-                    <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
-                  ))}
+                  {renderNumberWithCommas(rewards.totalInvites)}
                 </div>
               </div>
               <div className="bg-[#272a2f] rounded-lg p-3 text-center">
-                <p className="text-sm text-gray-400">Pending Rewards</p>
+                <p className="text-sm text-gray-400">Pending</p>
                 <div className="flex items-center justify-center mt-1">
-                  <img src={numberImages[5]} alt="5" className="w-4 h-4" />
-                  <span className="text-lg ml-1">00</span>
+                  {renderNumberWithCommas(rewards.pendingRewards)}
                 </div>
               </div>
               <div className="bg-[#272a2f] rounded-lg p-3 text-center">
-                <p className="text-sm text-gray-400">Claimed Rewards</p>
+                <p className="text-sm text-gray-400">Claimed</p>
                 <div className="flex items-center justify-center mt-1">
-                  <img src={numberImages[1]} alt="1" className="w-4 h-4" />
-                  <span className="text-lg ml-1">000</span>
+                  {renderNumberWithCommas(rewards.claimedRewards)}
                 </div>
               </div>
             </div>
@@ -144,9 +155,7 @@ const Friends: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <div className="flex items-center justify-end">
-                        {String(friend.taps).split('').map((digit, idx) => (
-                          <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
-                        ))}
+                        {renderNumberWithCommas(friend.taps)}
                       </div>
                       <p className="text-xs text-gray-400 mt-1">Taps</p>
                     </div>

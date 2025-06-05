@@ -2,14 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import Hamster from './icons/Hamster';
-import { binanceLogo, dollarCoin, hamsterCoin, mainCharacter, logoClear, spbgearth, rocket2, numberImages } from './images';
+import { binanceLogo, dollarCoin, mainCharacter, logoClear, spbgearth, rocket2, numberImages, tapgameIcon, friendsIcon, earnIcon, profileIcon } from './images';
 import slashImage from './images/number/slash.png';
 import Info from './icons/Info';
 import Settings from './icons/Settings';
-import Mine from './icons/Mine';
-import Friends from './icons/Friends';
-import Coins from './icons/Coins';
 import FriendsPage from './pages/Friends';
+import Profile from './pages/Profile';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import '@solana/wallet-adapter-react-ui/styles.css';
+import FooterNav from './components/FooterNav';
+import { getUser } from './api/users';
+
+const wallets = [
+  new PhantomWalletAdapter(),
+  new SolflareWalletAdapter(),
+];
+
+const endpoint = 'https://api.mainnet-beta.solana.com';
 
 const App: React.FC = () => {
   const levelNames = [
@@ -94,10 +105,7 @@ const App: React.FC = () => {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    const paddedHours = hours.toString().padStart(2, '0');
-    const paddedMinutes = minutes.toString().padStart(2, '0');
-
-    return `${paddedHours}:${paddedMinutes}`;
+    return `Reset in ${hours}h:${minutes.toString().padStart(2, '0')}m`;
   };
 
   useEffect(() => {
@@ -227,7 +235,7 @@ const App: React.FC = () => {
       setShowCombo(false);
       setComboCount(0);
     }, COMBO_TIMEOUT);
-    setComboTimer(timer);
+    setComboTimer(timer as unknown as number);
 
     setShake(true);
     setTimeout(() => setShake(false), 400);
@@ -272,189 +280,157 @@ const App: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [tapCount, comboTimer]);
 
+  // ユーザー情報取得
+  const [userAvatar, setUserAvatar] = useState<string>(logoClear);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getUser('chana042');
+        setUserAvatar(user.avatar || logoClear);
+      } catch (e) {
+        setUserAvatar(logoClear);
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
-    <Router>
-      <div
-        className="flex justify-center"
-        style={{
-          backgroundColor: '#eee',
-          minHeight: '100vh',
-          width: '100vw',
-        }}
-      >
-        <Routes>
-          <Route path="/friends" element={<FriendsPage />} />
-          <Route path="/" element={
-            <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl justify-start">
-              <div className="px-4 z-10">
-                <div className="flex items-center space-x-2 pt-4">
-                  <div className="p-1 rounded-lg bg-[#1d2025]">
-                    <Hamster size={24} className="text-[#d4d4d4]" />
-                  </div>
-                  <div>
-                    <p className="text-sm">Nikandr (CEO)</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between space-x-4 mt-1">
-                  <div className="flex items-center w-1/3">
-                    <div className="w-full">
-                      <div className="flex justify-between">
-                        <p className="text-sm">{levelNames[levelIndex]}</p>
-                        <p className="text-sm">{levelIndex + 1} <span className="text-[#95908a]">/ {levelNames.length}</span></p>
-                      </div>
-                      <div className="flex items-center mt-1 border-2 border-[#43433b] rounded-full">
-                        <div className="w-full h-2 bg-[#43433b]/[0.6] rounded-full">
-                          <div className="progress-gradient h-2 rounded-full" style={{ width: `${calculateProgress()}%` }}></div>
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <Router>
+            <div
+              className="flex justify-center"
+              style={{
+                backgroundColor: '#eee',
+                minHeight: '100vh',
+                width: '100vw',
+              }}
+            >
+              <Routes>
+                <Route path="/friends" element={<FriendsPage />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/" element={
+                  <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl justify-start">
+                    <div className="px-4 z-10">
+                      <div className="flex items-center space-x-2 pt-4">
+                        <div className="p-1 rounded-lg bg-[#1d2025]">
+                          <Hamster size={24} className="text-[#d4d4d4]" />
+                        </div>
+                        <div>
+                          <p className="text-sm">Nikandr (CEO)</p>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center w-2/3 border-2 border-[#43433b] rounded-full px-4 py-[2px] bg-[#43433b]/[0.6] max-w-64">
-                    <img src={binanceLogo} alt="Exchange" className="w-8 h-8" />
-                    <div className="h-[32px] w-[2px] bg-[#43433b] mx-2"></div>
-                    <div className="flex-1 text-center">
-                      <p className="text-xs text-[#85827d] font-medium">Profit per hour</p>
-                      <div className="flex items-center justify-center space-x-1">
-                        <img src={dollarCoin} alt="Dollar Coin" className="w-[18px] h-[18px]" />
-                        <p className="text-sm">{formatProfitPerHour(profitPerHour)}</p>
-                        <Info size={20} className="text-[#43433b]" />
-                      </div>
-                    </div>
-                    <div className="h-[32px] w-[2px] bg-[#43433b] mx-2"></div>
-                    <Settings className="text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-grow mt-0 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0 flex flex-col justify-start">
-                <div 
-                  className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px]"
-                  style={{
-                    backgroundImage: `url(${spbgearth})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                >
-                  <div className="px-4 mt-6 flex justify-between gap-2">
-                    <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
-                      <div className="dot"></div>
-                      <div className="flex justify-center items-end mt-1 mb-1">
-                        {String(todayTaps).padStart(4, '0').split('').map((digit, idx) => (
-                          <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-center text-white mt-1">Today Taps</p>
-                      <p className="text-[10px] font-medium text-center text-gray-400 mt-2">Reset in {todayTapsTimeLeft}</p>
-                    </div>
-                    <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
-                      <div className="dot"></div>
-                      <div className="flex justify-center items-end mt-1 mb-1">
-                        {String(maxCombo).padStart(4, '0').split('').map((digit, idx) => (
-                          <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-center text-white mt-1">Max Combo!</p>
-                      <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
-                    </div>
-                  </div>
-
-                  <div className="px-4 mt-0 flex justify-center">
-                    <div className="w-full flex flex-col items-center">
-                      <div className={`relative w-full max-w-md h-24 flex items-center justify-center mb-4 ${shake ? 'animate-shake' : ''}`} style={{cursor:'pointer'}} onClick={handleTap}>
-                        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 rounded-full bg-gradient-to-r from-indigo-900 via-blue-700 to-yellow-400 border-2 border-blue-300 shadow-2xl overflow-hidden progress-bar-pro">
-                          <div className="h-full bg-gradient-to-r from-yellow-300 via-orange-400 to-red-600 progress-bar-inner" style={{ width: `calc(${tapCount} / ${TAP_LIMIT} * 100%)`, transition: 'width 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }}></div>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="flex items-center justify-center space-x-0.5">
-                              {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
-                                <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
-                              ))}
-                              <img src={slashImage} alt="/" className="w-3 h-3 mx-0.5" />
-                              {String(TAP_LIMIT).split('').map((digit, idx) => (
-                                <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
-                              ))}
+                      <div className="flex items-center justify-between space-x-4 mt-1">
+                        <div className="flex items-center w-1/3">
+                          <div className="w-full">
+                            <div className="flex justify-between">
+                              <p className="text-sm">{levelNames[levelIndex]}</p>
+                              <p className="text-sm">{levelIndex + 1} <span className="text-[#95908a]">/ {levelNames.length}</span></p>
+                            </div>
+                            <div className="flex items-center mt-1 border-2 border-[#43433b] rounded-full">
+                              <div className="w-full h-2 bg-[#43433b]/[0.6] rounded-full">
+                                <div className="progress-gradient h-2 rounded-full" style={{ width: `${calculateProgress()}%` }}></div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <img src={rocket2} alt="Rocket" className="absolute z-10 w-14 h-14 rocket-float" style={{ left: `calc((100% - 56px) * ${(tapCount/TAP_LIMIT)})`, top: 'calc(50% - 28px)', transition: 'left 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }} />
+                        <div className="flex items-center w-2/3 border-2 border-[#43433b] rounded-full px-4 py-[2px] bg-[#43433b]/[0.6] max-w-64">
+                          <img src={userAvatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover border-2 border-white" />
+                          <div className="h-[32px] w-[2px] bg-[#43433b] mx-2"></div>
+                          <div className="flex-1 text-center flex flex-col items-center justify-center">
+                            <span className="text-xs text-[#85827d] font-medium mb-1">Wallet</span>
+                            <WalletMultiButton />
+                          </div>
+                          <div className="h-[32px] w-[2px] bg-[#43433b] mx-2"></div>
+                          <Settings className="text-white" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex-grow mt-0 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0 flex flex-col justify-start">
+                      <div 
+                        className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px]"
+                        style={{
+                          backgroundImage: `url(${spbgearth})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <div className="px-4 mt-6 flex justify-between gap-2">
+                          <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
+                            <div className="dot"></div>
+                            <div className="flex justify-center items-end mt-1 mb-1">
+                              {String(todayTaps).padStart(4, '0').split('').map((digit, idx) => (
+                                <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
+                              ))}
+                            </div>
+                            <p className="text-[10px] text-center text-white mt-1">Today Taps</p>
+                            <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{todayTapsTimeLeft}</p>
+                          </div>
+                          <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-1/2 relative">
+                            <div className="dot"></div>
+                            <div className="flex justify-center items-end mt-1 mb-1">
+                              {String(maxCombo).padStart(4, '0').split('').map((digit, idx) => (
+                                <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-10 h-10 mx-1" />
+                              ))}
+                            </div>
+                            <p className="text-[10px] text-center text-white mt-1">Max Combo!</p>
+                            <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
+                          </div>
+                        </div>
+
+                        <div className="px-4 mt-0 flex justify-center">
+                          <div className="w-full flex flex-col items-center">
+                            <div className={`relative w-full max-w-md h-24 flex items-center justify-center mb-4 ${shake ? 'animate-shake' : ''}`} style={{cursor:'pointer'}} onClick={handleTap}>
+                              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 rounded-full bg-gradient-to-r from-indigo-900 via-blue-700 to-yellow-400 border-2 border-blue-300 shadow-2xl overflow-hidden progress-bar-pro">
+                                <div className="h-full bg-gradient-to-r from-yellow-300 via-orange-400 to-red-600 progress-bar-inner" style={{ width: `calc(${tapCount} / ${TAP_LIMIT} * 100%)`, transition: 'width 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }}></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="flex items-center justify-center space-x-0.5">
+                                    {String(tapCount).padStart(3, '0').split('').map((digit, idx) => (
+                                      <img key={`current-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
+                                    ))}
+                                    <img src={slashImage} alt="/" className="w-3 h-3 mx-0.5" />
+                                    {String(TAP_LIMIT).split('').map((digit, idx) => (
+                                      <img key={`limit-${idx}`} src={numberImages[Number(digit)]} alt={digit} className="w-4 h-4" />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              <img src={rocket2} alt="Rocket" className="absolute z-10 w-14 h-14 rocket-float" style={{ left: `calc((100% - 56px) * ${(tapCount/TAP_LIMIT)})`, top: 'calc(50% - 28px)', transition: 'left 0.3s cubic-bezier(.68,-0.55,.27,1.55)' }} />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="px-4 mt-0 flex justify-center">
+                          <div
+                            className={`w-80 h-80 p-4 rounded-full circle-outer${shake ? ' animate-shake' : ''}`}
+                            onClick={handleCardClick}
+                          >
+                            <div className="w-full h-full rounded-full circle-inner relative">
+                              <img 
+                                src={logoClear} 
+                                alt="Logo" 
+                                className="absolute inset-0 w-full h-full rotate-animation opacity-20 scale-125" 
+                              />
+                              <img 
+                                src={mainCharacter} 
+                                alt="Main Character" 
+                                className="w-full h-full floating-animation relative z-10" 
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className="px-4 mt-0 flex justify-center">
-                    <div
-                      className={`w-80 h-80 p-4 rounded-full circle-outer${shake ? ' animate-shake' : ''}`}
-                      onClick={handleCardClick}
-                    >
-                      <div className="w-full h-full rounded-full circle-inner relative">
-                        <img 
-                          src={logoClear} 
-                          alt="Logo" 
-                          className="absolute inset-0 w-full h-full rotate-animation opacity-20 scale-125" 
-                        />
-                        <img 
-                          src={mainCharacter} 
-                          alt="Main Character" 
-                          className="w-full h-full floating-animation relative z-10" 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                } />
+              </Routes>
+              <FooterNav />
             </div>
-          } />
-        </Routes>
-
-        {/* Bottom fixed div */}
-        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl bg-[#272a2f] flex justify-around items-center z-50 rounded-3xl text-xs">
-          <Link to="/" className="text-center text-[#85827d] w-1/5 bg-[#1c1f24] m-1 p-2 rounded-2xl">
-            <img src={logoClear} alt="YAG TAP" className="w-6 h-6 mx-auto" />
-            <p className="mt-1">YAG TAP</p>
-          </Link>
-          <div className="text-center text-[#85827d] w-1/5">
-            <Mine className="w-8 h-8 mx-auto" />
-            <p className="mt-1">Mine</p>
-          </div>
-          <Link to="/friends" className="text-center text-[#85827d] w-1/5">
-            <Friends className="w-8 h-8 mx-auto" />
-            <p className="mt-1">Friends</p>
-          </Link>
-          <div className="text-center text-[#85827d] w-1/5">
-            <Coins className="w-8 h-8 mx-auto" />
-            <p className="mt-1">Earn</p>
-          </div>
-          <div className="text-center text-[#85827d] w-1/5">
-            <img src={hamsterCoin} alt="Airdrop" className="w-8 h-8 mx-auto" />
-            <p className="mt-1">Airdrop</p>
-          </div>
-        </div>
-
-        {clicks.map((click) => (
-          <div
-            key={click.id}
-            className="absolute text-5xl font-bold opacity-0 text-white pointer-events-none"
-            style={{
-              top: `${click.y - 42}px`,
-              left: `${click.x - 28}px`,
-              animation: `float 1s ease-out`
-            }}
-            onAnimationEnd={() => handleAnimationEnd(click.id)}
-          >
-            {pointsToAdd}
-          </div>
-        ))}
-
-        {showCombo && (
-          <div className="combo-text">
-            <div className="combo-numbers">
-              {String(comboCount).split('').map((digit, idx) => (
-                <img key={idx} src={numberImages[Number(digit)]} alt={digit} className="w-16 h-16 mx-1" />
-              ))}
-            </div>
-            <div className="combo-label">COMBO!</div>
-          </div>
-        )}
-      </div>
-    </Router>
+          </Router>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 };
 

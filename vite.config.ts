@@ -12,5 +12,20 @@ export default defineConfig({
         manualChunks: undefined
       }
     }
+  },
+  assetsInclude: ['**/*.svg'],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://tagapp-psi.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
   }
 })

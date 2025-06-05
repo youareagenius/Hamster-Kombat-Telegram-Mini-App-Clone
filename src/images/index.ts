@@ -3,10 +3,14 @@ import binanceLogo from "./binance-logo.png";
 import dollarCoin from "./dollar-coin.png";
 import dailyCombo from "./sys/daily-combo.png";
 import mainCharacter from "./character/babyyag.png";
-import hamsterCoin from "./hamster-coin.png";
+import yagcoin from "./yagcoin.png";
 import logoClear from "../images/sys/logo_clear.png";
 import spbgearth from "../images/sys/spbgearth.png";
 import rocket2 from "../images/sys/rocket2.png";
+import tapgameIcon from "./icon/yagtap.png";
+import friendsIcon from "./icon/friends.png";
+import earnIcon from "./icon/earn.png";
+import profileIcon from "./icon/profile.png";
 import number0 from "../images/number/0.png";
 import number1 from "../images/number/1.png";
 import number2 from "../images/number/2.png";
@@ -26,9 +30,13 @@ export {
     dollarCoin,
     dailyCombo,
     mainCharacter,
-    hamsterCoin,
+    yagcoin,
     logoClear,
     spbgearth,
     rocket2,
+    tapgameIcon,
+    friendsIcon,
+    earnIcon,
+    profileIcon,
     numberImages
 };
