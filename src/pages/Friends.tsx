@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { numberImages } from '../images';
 import { TwitterIcon, TelegramIcon, WhatsAppIcon, CopyIcon } from '../icons/SocialIcons';
+import spbgearth from '../images/sys/spbgearth.png';
 
 const Friends: React.FC = () => {
   const inviteCode = 'YAGTAP123';
@@ -68,15 +69,22 @@ const Friends: React.FC = () => {
         </div>
       </div>
       <div className="flex-grow mt-0 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0 flex flex-col justify-start">
-        <div className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px] bg-[#1c1f24] overflow-y-auto">
+        <div
+          className="absolute top-[2px] left-0 right-0 bottom-0 rounded-t-[46px] overflow-y-auto"
+          style={{
+            backgroundImage: `url(${spbgearth})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           {/* 招待コードセクション */}
           <div className="p-4">
             <div className="bg-[#272a2f] rounded-lg p-4">
               <h2 className="text-sm text-gray-400 mb-2">Your Invite Code</h2>
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+                <div className="invite-code-container">
                   {inviteCode.split('').map((char, idx) => (
-                    <div key={idx} className="bg-[#1c1f24] px-3 py-2 rounded">
+                    <div key={idx} className="invite-code-char">
                       {char}
                     </div>
                   ))}

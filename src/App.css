@@ -319,3 +319,29 @@
     opacity: 0;
   }
 }
+
+.invite-code-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.invite-code-char {
+  background: #1c1f24;
+  padding: 0.5em 0.7em;
+  border-radius: 6px;
+  font-size: 1.1em;
+  min-width: 2.2em;
+  text-align: center;
+  word-break: break-all;
+}
+
+@media (max-width: 400px) {
+  .invite-code-char {
+    padding: 0.3em 0.4em;
+    font-size: 0.95em;
+    min-width: 1.5em;
+  }
+}
